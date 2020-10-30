@@ -1,0 +1,19 @@
+2020.10.29(THU)
+수정사항(YOLO 훈련 부분만 진행)
+1. data_daejeon/json2txt.ipynb를 통해서 json을 coco형태의 txt로 변환
+2. core/config.py에서 적용 데이터 변경
+3. train.py에서 맨 처음 gpu 세팅하는 부분 바꿈
+4. data/classes에 daejeon.names 추가
+
+주의할 점
+1. annotation의 class 인덱스는 0부터!!!!!
+2. gpu 메모리 부족으로 인해 훈련 안됨
+3. daejeon.txt 파일은 json2txt.ipynb로 생성 후 data/dataset으로 옮겨줘야함
+
+할 일
+1. YOLO 모델 이해
+2. 서버 받으면 그대로(샘플 데이터만으로) 테스트
+3. 1이 되면 서버에 데이터(32GB짜리) 다운 후 테스트 
+4. ADMM 모델 정리(tf2.3으로 변환할 수 있으면 하기)
+5. YOLO에 ADMM 적용 
+

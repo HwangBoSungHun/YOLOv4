@@ -1,0 +1,48 @@
+<전체 디렉토리 구조>
+1. tensorflow-yolov4-tflite
+[save_model.py]: 훈련 전 모델을 만들어줌
+[train.py]: [save_model.py]에서 만들어진 모델을 실제로 학습시킴
+2. tensorflow-yolov4-tflite/checkpoints: 모델 저장 위치
+3. tensorflow-yolov4-tflite/core: YOLO 모델 관련
+[yolov4.py]: yolo 
+[backbone.py]: [yolov4.py]에서 잘 쓰이는 layer 모아놓은 거
+[common.py]: [backbone.py]과 [yolov4.py]에 쓰이는 가장 기본적인 layer 모음(BatchNormalization, convolutional 등)
+[utils.py]: 잡다하게 필요한 거 모아놓음 
+[dataset.py]: [train.py]에서 데이터 불러올 때 쓰임(coco에 맞춰져 있음) 
+[config.py]: 고정 상수를 여기서 정해줌(input size, 클래스들 이름, Anchor 갯수, stride, iou loss threshold 등)
+
+
+
+
+
+<수정이 필요한 곳>
+0. 모델 파일명: [save_model.py]에서 flags.DEFINE_string('weights', './data/yolov4.weights', 'path to weights file')의 yolov4.weights(모델 파일명)를 바꿔줘야 함 
+1. 모델 저장 경로: [save_model.py]에서 flags.DEFINE_string('weights', './data/yolov4.weights', 'path to weights file')
+2. tiny로 변경: 훈련하는데 오래 걸리니깐 tiny로 바꿔야할 듯. [save_model.py]에서 flags.DEFINE_boolean('tiny', False, 'is yolo-tiny or not')
+3. 데이터 변환(voc 형식): (이게 어려울 듯 함) [../scripts/voc/voc_convert.py]를 수정해서 데이터 변환하면 될 듯, [tensorflow-yolov4-tflite/checkpoints/dataset.py]도 수정이 필요한 것으로 보임 
+########################################################################################################
+# coco는 이렇게 한다고 
+# run script in /script/get_coco_dataset_2017.sh to download COCO 2017 Dataset
+# preprocess coco dataset
+cd data
+mkdir dataset
+cd ..
+cd scripts
+python coco_convert.py --input ./coco/annotations/instances_val2017.json --output val2017.pkl
+python coco_annotation.py --coco_path ./coco 
+########################################################################################################
+
+4. pretrain 되어 있는 거 바탕으로 훈련: [train.py]에서 flags.DEFINE_string('weights', './scripts/yolov4.weights', 'pretrained weights')를 
+########################################################################################################
+# FLAGS.weights == None이면 저장된 모델로부터 학습시킴  
+    if FLAGS.weights == None:
+        print("Training from scratch")
+    else:
+        if FLAGS.weights.split(".")[len(FLAGS.weights.split(".")) - 1] == "weights":
+            utils.load_weights(model, FLAGS.weights, FLAGS.model, FLAGS.tiny)
+        else:
+            model.load_weights(FLAGS.weights)
+        print('Restoring weights from: %s ... ' % FLAGS.weights)
+########################################################################################################
+
+
